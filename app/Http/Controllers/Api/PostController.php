@@ -8,7 +8,9 @@ use Illuminate\Http\Request;
 use App\Models\Post;
 // import resource postresource
 use App\Http\Resources\PostResource;
+use Faker\Provider\Base;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -82,4 +84,18 @@ class PostController extends Controller
 
         return new PostResource(true, 'Data post berhasil diubah!', $post);
     }
+
+    public function destroy($id){
+        $post = Post::find($id);
+
+        // delete image
+        // Storage::delete('public/posts/'.basename($post->image));
+        Storage::delete('public/posts/'.$post->image);
+
+        $post->delete();
+
+        return new PostResource(true, 'Data post berhasil dihapus!', null);
+    }
+
+    
 }
