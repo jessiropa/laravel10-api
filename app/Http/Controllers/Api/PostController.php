@@ -47,4 +47,39 @@ class PostController extends Controller
 
         return new PostResource(true, 'Detail Data Post!', $post);
     }
+
+    public function update(Request $request, $id){
+        $validator = Validator::make($request->all(), [
+            'title' => 'required',
+            'content' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return response()->json($validator->errors(), 422);
+        }
+
+        $post = Post::find($id);
+
+        if($request->hasFile('image')){
+            // upload image
+            $image = $request->file('image');
+            $image->storeAs('public/posts', $image->hashName());
+
+            // delete old image
+            Storage::delete('public/posts/'.$post->image);
+
+            $post->update([
+                'image' => $image->hashName(),
+                'title' => $request->title,
+                'content' => $request->content
+            ]);
+        } else {
+            $post->update([
+                'title' => $request->title,
+                'content' => $request->content
+            ]);
+        }
+
+        return new PostResource(true, 'Data post berhasil diubah!', $post);
+    }
 }
